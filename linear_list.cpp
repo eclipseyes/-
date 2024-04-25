@@ -51,6 +51,9 @@ status LoadList(SqList &L,char FileName[]);
 status AddList(LISTS &Lists,char ListName[]);
 status RemoveList(LISTS &Lists,char ListName[]);
 int LocateList(LISTS Lists,char ListName[]);
+int MaxSubArray( SqList &L );
+int SubArrayNum( SqList &L,int k );
+status sortList( SqList &L );
 
 int main(void)
 {
@@ -95,14 +98,15 @@ int main(void)
         printf("9.获取后继元素      \t\t\t\t10.插入元素\n");
         printf("11.删除元素         \t\t\t\t12.遍历线性表\n");
         printf("13.线性表存储       \t\t\t\t14.线性表读取\n");
-        printf("--------------------线性表间操作----------------------------------\n");
         printf("15.添加线性表       \t\t\t\t16.移除线性表\n");
         printf("17.查找线性表       \t\t\t\t18.更换操作线性表\n");
+        printf("19.最大连续子数组和 \t\t\t\t20.和为K的子数组\n");
+		    printf("21.从小到大排序"); 
         printf("\n\t\t\t\t\t\t\t0.退出\t\t\t\n");
         printf("当前操作的线性表：线性表%d:%s",cur+1,Lists.elem[cur].name);
         if(Lists.elem[cur].L.elem==NULL) printf("(未初始化)");
         printf("\n");
-        printf("请输入数字0~18进行操作\n");
+        printf("请输入数字0~21进行操作\n");
         scanf("%d",&op);//设置op的值，以便后续进行操作选择
         while(getchar()!='\n') continue;
         printf("\n");
@@ -361,6 +365,31 @@ int main(void)
                 printf("定位成功！");
              }
              break;
+              case 19:
+				        //最大连续子数组和
+                res=MaxSubArray(Lists.elem[cur].L);
+				        if(res==INFEASIBLE )
+					        printf("线性表不存在或为空！");
+				        else
+					      printf("最大连续子数组和为：%d",res);
+				        break;
+			        case 20:
+				         //返回和为K的子数组数目 
+				         printf("当前正在进行求和为K的子数组数目的操作，请输入K的值：");
+				         scanf("%d",&val);
+                 res=SubArrayNum(Lists.elem[cur].L,val);
+				         if(res==INFEASIBLE )
+					         printf("\n线性表不存在或为空！");
+				         else
+					       printf("\n和为K的子数组数目为：%d",res);
+				         break;
+			        case 21:
+				        //从小到大排序
+				        if( sortList(Lists.elem[cur].L)==INFEASIBLE )
+					        printf("线性表不存在或为空！");
+				        else
+					        printf("排序成功！");
+				        break; 
             default:
               //输入op错误
               printf("请输入正确的选项！");
@@ -734,4 +763,68 @@ int LocateList(LISTS Lists,char ListName[])
           return i+1;
     }
     return 0;
+}
+/*******************************************************************
+函数名称：MaxSubArray 
+功能：找出一个具有最大和的连续子数组（子数组最少包含一个元素），返回其最大和
+********************************************************************/
+int MaxSubArray( SqList &L )
+{
+	if( !L.elem||L.length==0 )		//线性表不存在或为空 
+		return INFEASIBLE;			//不可行 
+	int sum=0;
+	int ans=L.elem[0];
+	for( int i=0 ; i<L.length ; i++ )
+  {	//在线处理 
+		sum+=L.elem[i];
+		ans=(sum>ans)?sum:ans;		//模拟max函数 
+		if( sum<0 )					//sum小于0则舍弃 
+			sum=0;
+	}
+	return ans;
+}
+
+/*******************************************************************
+函数名称：SubArrayNum
+功能：返回该数组中和为k的连续子数组的个数
+********************************************************************/
+int SubArrayNum( SqList &L,int k )
+{
+	if( !L.elem||L.length==0 )		//线性表不存在或为空 
+		return INFEASIBLE;			//不可行
+	int cnt=0;
+	for( int start=0 ; start<L.length ; start++ )
+  {
+		int sum=0;
+		for( int end=start ; end>=0 ; end-- )
+    {
+			sum+=L.elem[end];
+			if( sum==k )
+				cnt++;
+		}
+	}
+	return cnt;
+}
+
+/*******************************************************************
+函数名称：sortList
+功能：将L由小到大排序
+********************************************************************/
+status sortList( SqList &L )
+{
+	if( !L.elem||L.length==0 )		//线性表不存在或为空 
+		return INFEASIBLE;			//不可行
+	for( int i=0 ; i<L.length ; i++ )
+  {	//冒泡排序
+		for( int j=1 ; j<L.length-i ; j++ )
+    {
+			if( L.elem[j]<L.elem[j-1] )
+      {
+				int t=L.elem[j];
+				L.elem[j]=L.elem[j-1];
+				L.elem[j-1]=t;
+			}
+		}
+	}
+	return OK;
 }
